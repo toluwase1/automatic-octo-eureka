@@ -1,1 +1,1 @@
-package automatic_octo_eureka
+package main
