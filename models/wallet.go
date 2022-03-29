@@ -2,26 +2,28 @@ package models
 
 type Transaction struct {
 	UserID               string
-	TransactionReference string
+	Id 					 string
 	Amount               float64
 	PhoneNumber          string
 	Password             string
 }
 
-// Wallet struct
+type TransactionHistory struct {
+	userId 			uint
+	AmountCredited float64
+	AmountDebited float64
+}
+
 type Wallet struct {
 	UserID  string
 	Balance float64
 }
 
-// CreditUserWallet Credits the user data
-func (w *Wallet) CreditUserWallet(money float64, userID string) {
-	w.UserID = userID
-	w.Balance += money
-}
 
-// DebitUserWallet Debits the user data
-func (w *Wallet) DebitUserWallet(money float64, userID string) {
-	w.UserID = userID
-	w.Balance -= money
+type SupportedCurrencies struct {
+	UserID  string
+	USDBal float64
+	EURBal float64
+	NGNBal float64
+	GBPBal float64
 }
