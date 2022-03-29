@@ -98,5 +98,6 @@ func DefineRouter(r *gin.Engine, handler *handlers.Handler) {
 	router.PUT("/activate-deactivate-wallet/:id", handler.ActivateWallet())
 	router.POST("/credit-user-wallet/:id", handler.CreditWallet())
 	router.POST("/debit-user-wallet/:id", handler.DebitWallet())
+	router.GET("/transaction-history/:id", handler.GetTransactionHistoryByUserid)
 
 }

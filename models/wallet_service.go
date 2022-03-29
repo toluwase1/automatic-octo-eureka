@@ -24,43 +24,52 @@ type WalletService interface {
 	PostToAccount(a * Wallet) (* Wallet, error)
 	GetAccountBalance(userID string) (*Wallet, error)
 	ChangeUserStatus(isActive bool, userReference string) (interface{}, error)
+	GetUserTransactionHistoryByUserId(userID string)  ([]*Transaction, error)
 }
 
 
 type DefaultWalletService struct {
-	repo Repository
+	repository Repository
 }
 
-func NewWalletService(repo Repository) *DefaultWalletService {
+func NewWalletService(newRepository Repository) *DefaultWalletService {
 	return &DefaultWalletService{
-		repo: repo,
+		repository: newRepository,
 	}
 }
 
 func (user *DefaultWalletService) CreateWallet(userInfo *User) (*User, error) {
-	return user.repo.CreateWallet(userInfo)
+	return user.repository.CreateWallet(userInfo)
 }
 
 func (user *DefaultWalletService) GetUserByEmail(email string) ([]*User, error) {
-	return user.repo.GetUserByEmail(email)
+	return user.repository.GetUserByEmail(email)
 }
 
 func (user *DefaultWalletService) CheckIfPasswordExists(userReference string) ([]*User, error) {
-	return user.repo.CheckIfPasswordExists(userReference)
+	return user.repository.CheckIfPasswordExists(userReference)
 }
 
 func (user *DefaultWalletService) PostToAccount(a *Wallet) (*Wallet, error) {
-	return user.repo.PostToAccount(a)
+	return user.repository.PostToAccount(a)
 }
 
 func (user *DefaultWalletService) SaveTransaction(t *Transaction) (*Transaction, error) {
-	return user.repo.SaveTransaction(t)
+	return user.repository.SaveTransaction(t)
 }
 
 func (user *DefaultWalletService) GetAccountBalance(userID string) (*Wallet, error) {
-	return user.repo.GetAccountBalance(userID)
+	return user.repository.GetAccountBalance(userID)
 }
 
 func (user *DefaultWalletService) ChangeUserStatus(isActive bool, userReference string) (interface{}, error) {
-	return user.repo.ChangeUserStatus(isActive, userReference)
+	return user.repository.ChangeUserStatus(isActive, userReference)
+}
+
+func (user *DefaultWalletService) GetUserTransactionHistoryByUserId(userID string)  ([]*Transaction, error) {
+	return user.repository.GetAllTransactionsById(userID)
+}
+
+func (user *DefaultWalletService) GetUserTransactionHistoryByUserId(userID string)  ([]*Transaction, error) {
+	return user.repository.GetAllTransactionsById(userID)
 }

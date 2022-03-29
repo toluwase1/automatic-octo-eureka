@@ -15,6 +15,7 @@ type Repository interface {
 	SaveTransaction(transaction *Transaction) (*Transaction, error)
 	GetAccountBalance(userID string) (*Wallet, error)
 	ChangeUserStatus(isActive bool, userReference string) (interface{}, error)
+	GetAllTransactionsById(id string) ([]*Transaction, error)
 }
 
 // Mysql struct
@@ -86,14 +87,23 @@ func (mysql *Mysql) ChangeUserStatus(isActive bool, id string) (interface{}, err
 			)
 	return result, result.Error
 }
+/*
 
-//func (mysql *Mysql) GetAllTransactionsById(id string) ([]*Wallet, error) {
-//	var history []*Wallet
-//	historyFound := mysql.DB.Where("user_id = ?", id).First(&history)
-//	fmt.Println(historyFound.Error)
-//	return historyFound, historyFound.Error
-//	//mysql.DB.First(&history, "id = ?", "string_primary_key")
-//}
+	comments := []Comment{}
+	err := db.Debug().Model(&Comment{}).Where("post_id = ?", pid).Order("created_at desc").Find(&comments).Error
+ */
+
+func (mysql *Mysql) GetAllTransactionsById(id string) ([]*Transaction, error) {
+	//mysql.DB.Where("user_id = ? AND transaction_type = ?", id, "credit").Find(&users)
+	transactions := Transaction{}
+	mysql.DB.Where("user_id = ?", id).Find(&transactions)
+	//mysql.DB.Model(Transaction{}).Where("user_id = ?", id)
+
+	var history []*Transaction
+	historyFound := mysql.DB.Where("user_id = ?", id).Find(&history)
+	fmt.Println(historyFound.Error)
+	return history, historyFound.Error
+}
 
 func (mysql *Mysql) GetAccountBalance(userID string) (*Wallet, error) {
 	var user *Wallet

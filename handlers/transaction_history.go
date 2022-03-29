@@ -11,7 +11,74 @@ import (
 	"wallet-engine/utilities"
 )
 
-func (handlers *Handler) GetTransactionHistoryByUserId() gin.HandlerFunc {
+
+func (handler *Handler) GetTransactionHistoryByUserid(c *gin.Context) {
+
+	//clear previous error if any
+	errList := map[string]string{}
+	userID := c.Param("id")
+	//user := models.User{}
+	//models.G
+	transactions, err := handler.WalletService.GetUserTransactionHistoryByUserId(userID)
+	if err != nil {
+		errList["No_transactions"] = "No transactions Found"
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": http.StatusInternalServerError,
+			"error":  errList,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":   http.StatusOK,
+		"response": transactions,
+	})
+}
+
+func (handler *Handler) GetCreditTransactionHistoryByUserid(c *gin.Context) {
+
+	//clear previous error if any
+	errList := map[string]string{}
+	userID := c.Param("id")
+	//user := models.User{}
+	//models.G
+	transactions, err := handler.WalletService.GetUserTransactionHistoryByUserId(userID)
+	if err != nil {
+		errList["No_transactions"] = "No transactions Found"
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": http.StatusInternalServerError,
+			"error":  errList,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":   http.StatusOK,
+		"response": transactions,
+	})
+}
+
+func (handler *Handler) GetDebitTransactionHistoryByUserid(c *gin.Context) {
+
+	//clear previous error if any
+	errList := map[string]string{}
+	userID := c.Param("id")
+
+	transactions, err := handler.WalletService.GetUserTransactionHistoryByUserId(userID)
+	if err != nil {
+		errList["No_transactions"] = "No transactions Found"
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": http.StatusInternalServerError,
+			"error":  errList,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":   http.StatusOK,
+		"response": transactions,
+	})
+}
+
+
+func (handlers *Handler) GetTransactionHistoryByUser() gin.HandlerFunc {
 	return func(context *gin.Context) {
 
 		userID := context.Param("id")
