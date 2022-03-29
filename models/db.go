@@ -16,6 +16,8 @@ type Repository interface {
 	GetAccountBalance(userID string) (*Wallet, error)
 	ChangeUserStatus(isActive bool, userReference string) (interface{}, error)
 	GetAllTransactionsById(id string) ([]*Transaction, error)
+	GetCreditTransactionsById(id string) ([]*Transaction, error)
+	GetDebitTransactionsById(id string) ([]*Transaction, error)
 }
 
 // Mysql struct
@@ -101,6 +103,20 @@ func (mysql *Mysql) GetAllTransactionsById(id string) ([]*Transaction, error) {
 
 	var history []*Transaction
 	historyFound := mysql.DB.Where("user_id = ?", id).Find(&history)
+	fmt.Println(historyFound.Error)
+	return history, historyFound.Error
+}
+
+func (mysql *Mysql) GetCreditTransactionsById(id string) ([]*Transaction, error) {
+
+	var history []*Transaction
+	historyFound := mysql.DB.Where("user_id = ? AND transaction_type = ?", id, "credit").Find(&history)
+	fmt.Println(historyFound.Error)
+	return history, historyFound.Error
+}
+func (mysql *Mysql) GetDebitTransactionsById(id string) ([]*Transaction, error) {
+	var history []*Transaction
+	historyFound := mysql.DB.Where("user_id = ? AND transaction_type = ?", id, "debit").Find(&history)
 	fmt.Println(historyFound.Error)
 	return history, historyFound.Error
 }

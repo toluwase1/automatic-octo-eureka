@@ -99,5 +99,7 @@ func DefineRouter(r *gin.Engine, handler *handlers.Handler) {
 	router.POST("/credit-user-wallet/:id", handler.CreditWallet())
 	router.POST("/debit-user-wallet/:id", handler.DebitWallet())
 	router.GET("/transaction-history/:id", handler.GetTransactionHistoryByUserid)
+	router.GET("/credit-history/:id", handler.GetCreditTransactionHistoryByUserid)
+	router.GET("/debit-history/:id", handler.GetDebitTransactionHistoryByUserid)
 
 }

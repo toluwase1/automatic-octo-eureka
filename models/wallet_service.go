@@ -25,6 +25,8 @@ type WalletService interface {
 	GetAccountBalance(userID string) (*Wallet, error)
 	ChangeUserStatus(isActive bool, userReference string) (interface{}, error)
 	GetUserTransactionHistoryByUserId(userID string)  ([]*Transaction, error)
+	GetCreditTransactionHistoryByUserId(userID string)  ([]*Transaction, error)
+	GetDebitTransactionHistoryByUserId(userID string)  ([]*Transaction, error)
 }
 
 
@@ -70,6 +72,9 @@ func (user *DefaultWalletService) GetUserTransactionHistoryByUserId(userID strin
 	return user.repository.GetAllTransactionsById(userID)
 }
 
-func (user *DefaultWalletService) GetUserTransactionHistoryByUserId(userID string)  ([]*Transaction, error) {
-	return user.repository.GetAllTransactionsById(userID)
+func (user *DefaultWalletService) GetCreditTransactionHistoryByUserId(userID string)  ([]*Transaction, error) {
+	return user.repository.GetCreditTransactionsById(userID)
+}
+func (user *DefaultWalletService) GetDebitTransactionHistoryByUserId(userID string)  ([]*Transaction, error) {
+	return user.repository.GetDebitTransactionsById(userID)
 }

@@ -41,7 +41,7 @@ func (handler *Handler) GetCreditTransactionHistoryByUserid(c *gin.Context) {
 	userID := c.Param("id")
 	//user := models.User{}
 	//models.G
-	transactions, err := handler.WalletService.GetUserTransactionHistoryByUserId(userID)
+	transactions, err := handler.WalletService.GetCreditTransactionHistoryByUserId(userID)
 	if err != nil {
 		errList["No_transactions"] = "No transactions Found"
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -62,7 +62,7 @@ func (handler *Handler) GetDebitTransactionHistoryByUserid(c *gin.Context) {
 	errList := map[string]string{}
 	userID := c.Param("id")
 
-	transactions, err := handler.WalletService.GetUserTransactionHistoryByUserId(userID)
+	transactions, err := handler.WalletService.GetDebitTransactionHistoryByUserId(userID)
 	if err != nil {
 		errList["No_transactions"] = "No transactions Found"
 		c.JSON(http.StatusInternalServerError, gin.H{
