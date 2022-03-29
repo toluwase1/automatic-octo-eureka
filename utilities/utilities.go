@@ -46,24 +46,6 @@ func Decode(c *gin.Context, v interface{}) []string {
 	return nil
 }
 
-//func Init() *gorm.DB {
-//
-//	mongoURL := fmt.Sprintf("%s://%s:%s", os.Getenv("db_type"), os.Getenv("mongo_db_host"), os.Getenv("mongo_db_port"))
-//
-//	timeout := time.Minute * 15
-//
-//	// using go mongo-driver  to connect to mongoDB
-//	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-//	defer cancel()
-//	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURL))
-//	if err != nil {
-//		log.Fatalf("error %v", err)
-//	}
-//
-//	log.Println("Database Connected Successfully...")
-//	return client
-//}
-
 func Initialize() *gorm.DB {
 	var Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string
 	Dbdriver = os.Getenv("DB_DRIVER")

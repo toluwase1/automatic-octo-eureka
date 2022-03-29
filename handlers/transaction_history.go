@@ -17,8 +17,7 @@ func (handler *Handler) GetTransactionHistoryByUserid(c *gin.Context) {
 	//clear previous error if any
 	errList := map[string]string{}
 	userID := c.Param("id")
-	//user := models.User{}
-	//models.G
+
 	transactions, err := handler.WalletService.GetUserTransactionHistoryByUserId(userID)
 	if err != nil {
 		errList["No_transactions"] = "No transactions Found"

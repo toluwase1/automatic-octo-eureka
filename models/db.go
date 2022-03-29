@@ -100,12 +100,6 @@ func (mysql *Mysql) ChangeUserStatus(isActive bool, id string) (interface{}, err
  */
 
 func (mysql *Mysql) GetAllTransactionsById(id string) ([]*Transaction, error) {
-	//mysql.DB.Where("user_id = ? AND transaction_type = ?", id, "credit").Find(&users)
-	//transactions := Transaction{}
-	//values := TransactionUser{}
-	//mysql.DB.Where("user_id = ?", id).Find(&transactions)
-	//mysql.DB.Model(&Transaction{}).Find(&TransactionUser{}).Where("user_id = ?", id)
-	//mysql.DB.Model(Transaction{}).Where("user_id = ?", id)
 
 	var history []*Transaction
 	historyFound := mysql.DB.Select("user_id","id", "amount", "transaction_type","created_at").Where("user_id = ?", id).Find(&history)

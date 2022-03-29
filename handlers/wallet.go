@@ -158,26 +158,16 @@ func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 		transaction.UserID = userID
 		transaction.TransactionType = "debit"
 
-
-		//transaction.PhoneNumber = "Debit"
-		log.Println("transaction details" ,transaction.Id)
-		log.Println("transaction details" ,transaction.UserID)
-		log.Println("transaction details" ,transaction.Amount)
-		log.Println("transaction details" ,transaction.Password)
-		//log.Println("transaction details" ,transaction.Type)
-		// Binding the json
-		log.Println("transaction details" ,transaction)
 		if err := utilities.Decode(context, &transaction); err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"transaction could not be decoded"}, "")
 			return
 		}
 
-		// Check if the transaction amount is less than 1000
 		if transaction.Amount < 1000 {
 			response.JSON(context, http.StatusNotFound, nil, []string{"sorry you can't debit less than N1000.00"}, "")
 			return
 		}
-		// Checking for the authenticity of the password
+
 		userDB, err := handlers.WalletService.CheckIfPasswordExists(userID)
 		if err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"could not fetch user reference "}, "")
@@ -215,29 +205,22 @@ func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 
 		account.Balance = t.Balance
 
-		//checking if the account balance is less than N0:00
+
 		if account.Balance <= 0 {
 			response.JSON(context, http.StatusNotFound, nil, []string{"Your balance is insufficient to perform the specified operation"}, "")
 			return
 		}
-
-		// check if the debit amount is greater than the balance
 		if account.Balance < transaction.Amount {
 			response.JSON(context, http.StatusNotFound, nil, []string{"Sorry, your account is insufficient for this transaction"}, "")
 			return
 		}
-
-		// method handles the debit of the wallet
 		account.DebitUserWallet(transaction.Amount, transaction.UserID)
 
-		// Handles saving of the transaction of the wallet
 		userTransaction, err := handlers.WalletService.SaveTransaction(transaction)
 		if err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"could not fetch user reference "}, "")
 			return
 		}
-
-		// Handles posting of the money to the user's account
 		newBal, err := handlers.WalletService.PostToAccount(account)
 		if err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"could not debit to user account "}, "")
