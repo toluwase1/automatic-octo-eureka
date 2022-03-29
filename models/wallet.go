@@ -6,6 +6,14 @@ type Transaction struct {
 	Amount               float64
 	TransactionType      string
 	Password             string
+	CreatedAt			 string
+}
+type TransactionUser struct {
+	UserID               string
+	Id 					 string
+	Amount               float64
+	TransactionType      string
+	CreatedAt			 string
 }
 
 type TransactionHistory struct {

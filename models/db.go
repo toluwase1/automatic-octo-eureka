@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"strconv"
+	"time"
 )
 
 type Repository interface {
@@ -58,7 +59,10 @@ func (mysql *Mysql) CheckIfPasswordExists(userReference string) ([]*User, error)
 
 
 func (mysql *Mysql) SaveTransaction(transaction *Transaction) (*Transaction, error) {
-	err := mysql.DB.Create(transaction).Error
+	now := time.Now()
+	transaction.CreatedAt = now.Format(time.ANSIC)
+	log.Println(transaction.CreatedAt)
+	err := mysql.DB.Create(transaction).Omit("password").Error
 	log.Println("error in saving transaction: ",err)
 	return transaction, err
 }
@@ -97,27 +101,32 @@ func (mysql *Mysql) ChangeUserStatus(isActive bool, id string) (interface{}, err
 
 func (mysql *Mysql) GetAllTransactionsById(id string) ([]*Transaction, error) {
 	//mysql.DB.Where("user_id = ? AND transaction_type = ?", id, "credit").Find(&users)
-	transactions := Transaction{}
-	mysql.DB.Where("user_id = ?", id).Find(&transactions)
+	//transactions := Transaction{}
+	//values := TransactionUser{}
+	//mysql.DB.Where("user_id = ?", id).Find(&transactions)
+	//mysql.DB.Model(&Transaction{}).Find(&TransactionUser{}).Where("user_id = ?", id)
 	//mysql.DB.Model(Transaction{}).Where("user_id = ?", id)
 
 	var history []*Transaction
-	historyFound := mysql.DB.Where("user_id = ?", id).Find(&history)
-	fmt.Println(historyFound.Error)
+	historyFound := mysql.DB.Select("user_id","id", "amount", "transaction_type","created_at").Where("user_id = ?", id).Find(&history)
+	log.Println(historyFound.Error)
 	return history, historyFound.Error
 }
 
 func (mysql *Mysql) GetCreditTransactionsById(id string) ([]*Transaction, error) {
-
+	//values := TransactionUser{}
 	var history []*Transaction
-	historyFound := mysql.DB.Where("user_id = ? AND transaction_type = ?", id, "credit").Find(&history)
-	fmt.Println(historyFound.Error)
+	//values := history
+	historyFound := mysql.DB.Select("user_id","id", "amount", "transaction_type","created_at").Where("user_id = ? AND transaction_type = ?", id, "credit").Find(&history)
 	return history, historyFound.Error
 }
 func (mysql *Mysql) GetDebitTransactionsById(id string) ([]*Transaction, error) {
+	//values := TransactionUser{}
 	var history []*Transaction
-	historyFound := mysql.DB.Where("user_id = ? AND transaction_type = ?", id, "debit").Find(&history)
-	fmt.Println(historyFound.Error)
+	historyFound := mysql.DB.Select("user_id","id", "amount", "transaction_type","created_at").Where("user_id = ? AND transaction_type = ?", id, "debit").Find(&history).Omit("password")
+	log.Println(historyFound.Error)
+	log.Println(history)
+	log.Println(historyFound)
 	return history, historyFound.Error
 }
 

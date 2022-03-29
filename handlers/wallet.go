@@ -26,10 +26,10 @@ func (handlers *Handler) ActivateWallet() gin.HandlerFunc {
 		var message string
 		var status bool
 		if activate == "true" {
-			message = "activated successfully"
+			message = "account activation is successful"
 			status = true
 		} else {
-			message = "deactivate successfully"
+			message = "account deactivation is successfu1"
 			status = false
 
 		}
