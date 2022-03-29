@@ -4,7 +4,7 @@ type Transaction struct {
 	UserID               string
 	Id 					 string
 	Amount               float64
-	PhoneNumber          string
+	TransactionType      string
 	Password             string
 }
 

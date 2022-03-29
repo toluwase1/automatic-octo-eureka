@@ -58,7 +58,7 @@ func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 		transaction := &models.Transaction{}
 
 		transaction.UserID = userID
-		transaction.PhoneNumber = "credit"
+		transaction.TransactionType = "credit"
 		//transaction.Amount= context
 
 		transaction.Id = uuid.New().String()
@@ -151,12 +151,14 @@ func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 
 func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 	return func(context *gin.Context) {
+
 		userID := context.Param("id")
 		transaction := &models.Transaction{}
-
-		transaction.UserID = userID
-
 		transaction.Id = uuid.New().String()
+		transaction.UserID = userID
+		transaction.TransactionType = "debit"
+
+
 		//transaction.PhoneNumber = "Debit"
 		log.Println("transaction details" ,transaction.Id)
 		log.Println("transaction details" ,transaction.UserID)
@@ -205,23 +207,17 @@ func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 			return
 		}
 
-		// querying database for the balance
 		t, err := handlers.WalletService.GetAccountBalance(userID)
 		if err != nil {
 			log.Print(err)
 		}
 
-		//var currentBalance float64
-		//for _, user := range t {
-		//	currentBalance = user.Balance
-		//
-		//}
 
 		account.Balance = t.Balance
 
 		//checking if the account balance is less than N0:00
 		if account.Balance <= 0 {
-			response.JSON(context, http.StatusNotFound, nil, []string{"Sorry, your account is insufficient for this transaction"}, "")
+			response.JSON(context, http.StatusNotFound, nil, []string{"Your balance is insufficient to perform the specified operation"}, "")
 			return
 		}
 
@@ -242,20 +238,18 @@ func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 		}
 
 		// Handles posting of the money to the user's account
-		currentAccount, err := handlers.WalletService.PostToAccount(account)
+		newBal, err := handlers.WalletService.PostToAccount(account)
 		if err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"could not debit to user account "}, "")
 			return
 		}
-
-		// json response
 		response.JSON(context, http.StatusCreated, gin.H{
-			"transaction reference": userTransaction.Id,
-			"amount credited":       userTransaction.Amount,
-			"account balance":       currentAccount.Balance,
+			"transaction id": userTransaction.Id,
+			"amount debited from specified user account ":       userTransaction.Amount,
+			"account balance":       newBal.Balance,
 		},
 			nil,
-			"account debited successfully")
+			"account has been successfuly debited with " +fmt.Sprintf("%f", userTransaction.Amount)+" your new account balance is "+ fmt.Sprintf("%f", newBal.Balance))
 	}
 }
 
