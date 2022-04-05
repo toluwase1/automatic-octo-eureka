@@ -7,6 +7,10 @@ type Transaction struct {
 	TransactionType      string
 	Password             string
 	CreatedAt			 string
+	USD 				 float64
+	EUR 				 float64
+	NGN 				 float64
+	GBP                  float64
 }
 type TransactionUser struct {
 	UserID               string

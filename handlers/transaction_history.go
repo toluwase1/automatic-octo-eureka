@@ -11,7 +11,6 @@ import (
 	"wallet-engine/utilities"
 )
 
-
 func (handler *Handler) GetTransactionHistoryByUserid(c *gin.Context) {
 
 	//clear previous error if any
@@ -76,7 +75,6 @@ func (handler *Handler) GetDebitTransactionHistoryByUserid(c *gin.Context) {
 	})
 }
 
-
 func (handlers *Handler) GetTransactionHistoryByUser() gin.HandlerFunc {
 	return func(context *gin.Context) {
 
@@ -87,12 +85,10 @@ func (handlers *Handler) GetTransactionHistoryByUser() gin.HandlerFunc {
 
 		transaction.Id = uuid.New().String()
 
-
 		if err := utilities.Decode(context, &transaction); err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"cannot decode transaction"}, "")
 			return
 		}
-
 
 		if transaction.Amount < 1000 {
 			response.JSON(context, http.StatusNotFound, nil, []string{"sorry you can't deposit less than N1000.00"}, "")
@@ -112,7 +108,7 @@ func (handlers *Handler) GetTransactionHistoryByUser() gin.HandlerFunc {
 			activationStatus = user.IsActive
 		}
 
-		if correct := utilities.CheckPasswordHash(transaction.Password, []byte(hashedPassword)); correct {
+		if err := utilities.CheckPasswordHash(transaction.Password, hashedPassword); err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"Invalid password"}, "")
 			return
 		}
@@ -120,7 +116,6 @@ func (handlers *Handler) GetTransactionHistoryByUser() gin.HandlerFunc {
 		account := &models.Wallet{}
 		currentUser := &models.User{}
 		currentUser.IsActive = activationStatus
-
 
 		if currentUser.IsActive == false {
 			response.JSON(context, http.StatusNotFound, nil, []string{"sorry, please activate your account"}, "")
@@ -149,11 +144,11 @@ func (handlers *Handler) GetTransactionHistoryByUser() gin.HandlerFunc {
 		}
 
 		response.JSON(context, http.StatusCreated, gin.H{
-			"transaction id": userTransaction.Id,
+			"transaction id":                   userTransaction.Id,
 			"amount credited to user account ": userTransaction.Amount,
-			"New account balance": currentAccount.Balance,
+			"New account balance":              currentAccount.Balance,
 		},
 			nil,
-			"account has been successfully credited with " +fmt.Sprintf("%f", userTransaction.Amount)+"your new account balance is "+ fmt.Sprintf("%f", currentAccount.Balance))
+			"account has been successfully credited with "+fmt.Sprintf("%f", userTransaction.Amount)+"your new account balance is "+fmt.Sprintf("%f", currentAccount.Balance))
 	}
 }

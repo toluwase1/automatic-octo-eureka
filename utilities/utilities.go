@@ -2,31 +2,86 @@ package utilities
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"wallet-engine/models"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"log"
 	"os"
 	"strings"
+	"wallet-engine/models"
 )
-
 
 func GenerateHashPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-func CheckPasswordHash(password string, hash []byte) bool {
-	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
-	return err == nil
+func CheckPasswordHash(password, hashedPassword string) error {
+	log.Println("hashedPassword: ", hashedPassword)
+	log.Println("password: ", password)
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	log.Println(err)
+	log.Println(err == nil)
+	return err // nil means it is a match
+}
+
+//func iniciarSesion(w http.ResponseWriter, r *http.Request) {
+//
+//	w.Header().Add("Content-Type", "application/json")
+//	w.Header().Add("Access-Control-Allow-Origin", "*")
+//	w.Header().Add("Access-Control-Allow-Methods:", "POST")
+//	var usuarios []
+//
+//	Usuarioerr := r.ParseForm()
+//
+//	if err != nil {
+//		return
+//	}
+//
+//	body, err := ioutil.ReadAll(r.Body)
+//
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//	datosPost := make(map[string]string)
+//	json.Unmarshal(body, &datosPost)
+//	email    := datosPost["email"]
+//	password := datosPost["password"]
+//	result, err := db.Query("SELECT email, password FROM usuario WHERE email = ?", &email)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	for result.Next() {
+//
+//		var usuario Usuario
+//		err := bcrypt.CompareHashAndPassword([]byte(*&usuario.Password), []byte(password))
+//		if err != nil {
+//			panic(err.Error())
+//		}
+//
+//		defer result.Close()
+//		errr := result.Scan(&usuario.Email, &usuario.Nickname, &usuario.Password, &usuario.Roscos, &usuario.Roscosperfectos, &usuario.Rol, &usuario.Foto)
+//
+//		if errr != nil {
+//			panic(err.Error())
+//		}
+//
+//		usuarios = append(usuarios, usuario)
+//	}
+//	json.NewEncoder(w).Encode(usuarios)
+//}
+
+func VerifyPassword(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+
 }
 
 func Decode(c *gin.Context, v interface{}) []string {
 	err := c.ShouldBindJSON(v)
 	log.Println(err)
-	if  err != nil {
+	if err != nil {
 		log.Println("1")
 		var errs []string
 		validation, ok := err.(validator.ValidationErrors)
@@ -58,7 +113,7 @@ func Initialize() *gorm.DB {
 	// If you want to use postgres, i added support for you in the else block, (dont forgot to edit the .env file)
 	if Dbdriver == "mysql" {
 		DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
-		fmt.Println("here.. ",DBURL)
+		fmt.Println("here.. ", DBURL)
 		dsn := "root:toluwase@tcp(127.0.0.1:3306)/wallet?charset=utf8mb4&parseTime=True&loc=Local"
 
 		Database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -94,16 +149,13 @@ func Initialize() *gorm.DB {
 
 }
 
-func AutoMigrate(Database *gorm.DB)  {
+func AutoMigrate(Database *gorm.DB) {
 	Database.Debug().AutoMigrate(
 		&models.User{},
 		&models.Transaction{},
 		&models.Wallet{},
 	)
 }
-
-
-
 
 type FieldError struct {
 	err validator.FieldError
@@ -130,3 +182,5 @@ func (f FieldError) String() string {
 func NewFieldError(err validator.FieldError) FieldError {
 	return FieldError{err: err}
 }
+
+// four sum

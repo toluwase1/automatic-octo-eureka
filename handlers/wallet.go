@@ -11,9 +11,6 @@ import (
 	"wallet-engine/utilities"
 )
 
-
-
-
 func (handlers *Handler) ActivateWallet() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		userReference := context.Param("id")
@@ -48,11 +45,10 @@ func (handlers *Handler) ActivateWallet() gin.HandlerFunc {
 	}
 }
 
-
 func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 	return func(context *gin.Context) {
 
-		fmt.Println("context ",context)
+		fmt.Println("context ", context)
 
 		userID := context.Param("id")
 		transaction := &models.Transaction{}
@@ -64,20 +60,19 @@ func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 		transaction.Id = uuid.New().String()
 
 		//transaction.Type = "Credit"
-		log.Println("transaction id" ,transaction.Id)
-		log.Println("transaction user" ,transaction.UserID)
-		log.Println("transaction amount" ,transaction.Amount)
-		log.Println("transaction pw" ,transaction.Password)
+		log.Println("transaction id", transaction.Id)
+		log.Println("transaction user", transaction.UserID)
+		log.Println("transaction amount", transaction.Amount)
+		log.Println("transaction pw", transaction.Password)
 		//log.Println("transaction type" ,transaction.Type)
 		// Binding the json
-		log.Println("transaction details" ,transaction)
-		fmt.Println("context ",context)
+		log.Println("transaction details", transaction)
+		fmt.Println("context ", context)
 
 		if err := utilities.Decode(context, &transaction); err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"cannot decode transaction"}, "")
 			return
 		}
-
 
 		if transaction.Amount < 1000 {
 			response.JSON(context, http.StatusNotFound, nil, []string{"sorry you can't deposit less than N1000.00"}, "")
@@ -96,16 +91,21 @@ func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 			hashedPassword = user.SecretKey
 			activationStatus = user.IsActive
 		}
-
-		if correct := utilities.CheckPasswordHash(transaction.Password, []byte(hashedPassword)); correct {
-			response.JSON(context, http.StatusNotFound, nil, []string{"Invalid password"}, "")
-			return
-		}
-
+		log.Println("hashed password", hashedPassword)
+		log.Println("transaction password", transaction.Password)
+		compPassword, err := utilities.GenerateHashPassword(transaction.Password)
+		errr := utilities.CheckPasswordHash(string(compPassword), hashedPassword)
+		log.Println("errr", errr)
+		log.Println("comparing value", string(compPassword))
+		//if errr != nil {
+		//	log.Println("correct or not 2", errr)
+		//	response.JSON(context, http.StatusNotFound, nil, []string{"Invalid password"}, "")
+		//	//return
+		//}
+		log.Println("its now correct ", errr)
 		account := &models.Wallet{}
 		currentUser := &models.User{}
 		currentUser.IsActive = activationStatus
-
 
 		if currentUser.IsActive == false {
 			response.JSON(context, http.StatusNotFound, nil, []string{"sorry, please activate your account"}, "")
@@ -113,7 +113,7 @@ func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 		}
 
 		t, err := handlers.WalletService.GetAccountBalance(userID)
-		log.Println("getting id",t)
+		log.Println("getting id", t)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -122,10 +122,10 @@ func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 
 		account.CreditUserWallet(transaction.Amount, transaction.UserID)
 
-		log.Println("transaction here: ",transaction)
+		log.Println("transaction here: ", transaction)
 
 		userTransaction, err := handlers.WalletService.SaveTransaction(transaction)
-		log.Println("userTransaction: ",userTransaction)
+		log.Println("userTransaction: ", userTransaction)
 		if err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"could not fetch userid "}, "")
 			return
@@ -138,16 +138,14 @@ func (handlers *Handler) CreditWallet() gin.HandlerFunc {
 		}
 
 		response.JSON(context, http.StatusCreated, gin.H{
-			"transaction id": userTransaction.Id,
+			"transaction id":                   userTransaction.Id,
 			"amount credited to user account ": userTransaction.Amount,
-			"New account balance": currentAccount.Balance,
+			"New account balance":              currentAccount.Balance,
 		},
 			nil,
-			"account has been successfully credited with " +fmt.Sprintf("%f", userTransaction.Amount)+"your new account balance is "+ fmt.Sprintf("%f", currentAccount.Balance))
+			"account has been successfully credited with "+fmt.Sprintf("%f", userTransaction.Amount)+"your new account balance is "+fmt.Sprintf("%f", currentAccount.Balance))
 	}
 }
-
-
 
 func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 	return func(context *gin.Context) {
@@ -182,7 +180,7 @@ func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 		}
 
 		// Confirming the password provided by the user
-		if correct := utilities.CheckPasswordHash(transaction.Password, []byte(hashedPassword)); correct {
+		if err := utilities.CheckPasswordHash(transaction.Password, hashedPassword); err != nil {
 			response.JSON(context, http.StatusNotFound, nil, []string{"Invalid password"}, "")
 			return
 		}
@@ -202,9 +200,7 @@ func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 			log.Print(err)
 		}
 
-
 		account.Balance = t.Balance
-
 
 		if account.Balance <= 0 {
 			response.JSON(context, http.StatusNotFound, nil, []string{"Your balance is insufficient to perform the specified operation"}, "")
@@ -228,11 +224,10 @@ func (handlers *Handler) DebitWallet() gin.HandlerFunc {
 		}
 		response.JSON(context, http.StatusCreated, gin.H{
 			"transaction id": userTransaction.Id,
-			"amount debited from specified user account ":       userTransaction.Amount,
-			"account balance":       newBal.Balance,
+			"amount debited from specified user account ": userTransaction.Amount,
+			"account balance": newBal.Balance,
 		},
 			nil,
-			"account has been successfuly debited with " +fmt.Sprintf("%f", userTransaction.Amount)+" your new account balance is "+ fmt.Sprintf("%f", newBal.Balance))
+			"account has been successfuly debited with "+fmt.Sprintf("%f", userTransaction.Amount)+" your new account balance is "+fmt.Sprintf("%f", newBal.Balance))
 	}
 }
-
